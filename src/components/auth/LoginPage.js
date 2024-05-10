@@ -9,6 +9,7 @@ import { Html5QrcodeScanner } from "html5-qrcode"
 import { useState, useEffect } from "react"
 import UserForm from "../form/UserForm"
 import { Badge } from "../ui/badge"
+import { v4 as uuidv4 } from 'uuid';
 
 export default function LoginPage() {
   const [result, setResult] = useState(null)
@@ -34,6 +35,7 @@ export default function LoginPage() {
       function success(result) {
         scanner.clear()
         setResult(result)
+
       }
 
       function error(err) {
@@ -48,7 +50,6 @@ export default function LoginPage() {
         .then(response => response.json())
         .then(data => {
           setUser(data.data[0]);
-          console.log(data.data[0])
         })
         .catch((error) => {
           console.error('Error:', error);
@@ -57,6 +58,68 @@ export default function LoginPage() {
       console.error(e)
     }
   }, [result])
+
+
+  useEffect(() => {
+    if (!user) return
+    attendance()
+  }, [user]);
+
+  const attendance = (id) => {
+    try {
+      fetch(`http://localhost:8080/api/attendance/${user.employee_id}`)
+        .then(response => response.json())
+        .then(data => {
+          console.log(data)
+          if (data && data.data.length === 0) {
+            fetch('http://localhost:8080/api/time_in', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ employee_id: user.employee_id, attendance_id: uuidv4() }),
+            })
+              .then(response => response.json())
+              .then(data => console.log(data))
+              .catch((error) => {
+                console.error('Error:', error);
+              });
+          } else {
+            fetch(`http://localhost:8080/api/time_out/${data.data[0].attendance_id}`, {
+              method: 'PUT',
+            })
+              .then(response => response.json())
+              .then(data => console.log(data))
+              .catch((error) => {
+                console.error('Error:', error);
+              });
+          }
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+    } catch (e) {
+      console.error(e)
+    }
+  }
+
+  useEffect(() => {
+    let timer;
+    if (user && result) {
+      timer = setTimeout(() => {
+        // Reset user and result here
+        setUser(null);
+        setResult(null);
+      }, 5000); // 5000 milliseconds = 5 seconds
+    }
+
+    // Cleanup function
+    return () => {
+      if (timer) {
+        clearTimeout(timer);
+      }
+    };
+  }, [user, result]);
 
   return (
     <div className="w-full min-h-screen lg:grid lg:grid-cols-2 ">
@@ -74,6 +137,10 @@ export default function LoginPage() {
               <Badge >{user.position}</Badge>
             </div>
             <h2 className="mt-1 text-xs font-medium text-gray-300">Phone:{user.phone_number}</h2>
+            <Button onClick={() => {
+              setUser(null)
+              setResult(null)
+            }}>Reset</Button>
           </div> :
           <div id="reader" className="w-full h-full border-0"></div>
         }

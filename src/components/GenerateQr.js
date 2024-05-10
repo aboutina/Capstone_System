@@ -3,8 +3,8 @@ import React, { useRef } from 'react';
 import { PaperPlaneIcon } from '@radix-ui/react-icons';
 import QRCode from 'qrcode.react';
 import { ref, getDownloadURL, uploadBytes, uploadBytesResumable } from "firebase/storage";
-import { storage } from '../../firebase';
-import useStore from '../../Zustand';
+import { storage } from '../lib/firebase';
+import useStore from '../lib/Zustand';
 
 
 function GenerateQr() {
