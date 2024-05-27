@@ -11,8 +11,9 @@ export default function Home() {
       {/* <Header />
       <GenerateQr />
       <UserForm /> 
-      <LoginPage />
+      
       */}
+      {/* <LoginPage /> */}
       <LoginAdmin />
     </div>
   );

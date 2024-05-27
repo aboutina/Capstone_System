@@ -16,130 +16,76 @@ import {
     TabsList,
     TabsTrigger,
 } from "@/components/ui/tabs"
-import { auth, db } from "@/lib/firebase"
-import { signInWithEmailAndPassword, createUserWithEmailAndPassword } from "firebase/auth"
-import { addDoc, collection, doc, onSnapshot, setDoc, updateDoc } from "firebase/firestore"
+import useAuth from "@/hooks/useAuth"
+import axios from "axios"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
+import { toast } from "sonner"
 
 function LoginAdmin() {
     const [userForm, setUserForm] = useState({
         email: "",
         password: "",
     })
-    const [admin, setAdmin] = useState([])
-    const [employee, setEmployee] = useState([])
     const [error, setError] = useState("")
+    const { auth, user } = useAuth();
     const router = useRouter()
 
-    useEffect(() => {
-        const unsubscriveAdmin = onSnapshot(collection(db, "admin"), (snapshot) => {
-            const serviceData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-            setAdmin(serviceData);
-        });
 
-        const getEmployee = () => {
-            fetch(`http://localhost:8080/api/employees`)
-                .then(response => response.json())
-                .then(data => {
-                    setEmployee(data.data[0]);
-                })
-                .catch((error) => {
-                    console.error('Error:', error);
-                });
+    if (auth) return router.push('/dashboard');
+
+    const login = async () => {
+        if (!userForm.email || !userForm.password) {
+            setError('Email and password are required');
+            return;
         }
-
-        return () => {
-            getEmployee()
-            unsubscriveAdmin()
-        };
-    }, [])
-
-
-    const login = async (e) => {
-        e.preventDefault();
 
         try {
-            if (admin) {
-                const findUser = admin.find((item) => {
-                    return item.email === userForm.email;
-                });
-
-                if (findUser) {
-                    await signInWithEmailAndPassword(auth, userForm.email, userForm.password);
-                    router.push("/dashboard");
-
-                    setError("");
-                } else {
-                    if (!findUser) {
-                        setError("Wrong Email!");
-                    } else {
-                        setError("Wrong password!");
-                    }
-
-                }
-            } else {
-                // handle the case when admin is null
-                setError("Admin data is not available!");
-
-            }
+            const response = await axios.post('http://localhost:8080/api/auth/admin/login', {
+                email: userForm.email,
+                password: userForm.password,
+            })
+            localStorage.setItem('token', response.data.token)
+            localStorage.setItem('admin', JSON.stringify(response.data.admin))
+            router.push('/dashboard')
+            setError("")
         } catch (error) {
-
-            setError(error.message);
-            console.error(error);
+            console.error('Login failed:', error.message)
+            setError(error.message)
         }
-    };
+    }
 
     const loginEmployee = async (e) => {
         e.preventDefault();
         try {
-            if (employee) {
-                const findUser = employee.find((item) => {
-                    return item.email === userForm.email;
-                });
-
-                if (findUser) {
-                    await signInWithEmailAndPassword(auth, email, password);
-                    router.push("/profile");
-
-                    setError("");
-                } else {
-                    if (!findUser) {
-                        setError("Wrong Email!");
-                    } else {
-                        setError("Wrong password!");
-                    }
-
-                }
-            }
+            const response = await axios.post('http://localhost:8080/api/auth/login', {
+                email: userForm.email,
+                password: userForm.password,
+            })
+            localStorage.setItem('token', response.data.token)
+            localStorage.setItem('admin', JSON.stringify(response.data.user))
+            router.push('/dashboard')
+            setError("")
         } catch (error) {
-            console.warn(error);
+            console.error('Login failed:', error.response.data.message)
+            setError(error.response.data.message)
         }
     }
 
     const register = async (e) => {
         e.preventDefault();
-
         try {
-            const newFormState = {
+            const response = await axios.post('http://localhost:8080/api/auth/admin/register', {
                 email: userForm.email,
                 password: userForm.password,
-                createdAt: new Date().toISOString(),
-            };
-
-            const userCredential = await createUserWithEmailAndPassword(
-                auth,
-                userForm.email,
-                userForm.password
-            );
-            const uid = userCredential.user.uid
-            await setDoc(doc(db, "admin", uid), {
-                ...newFormState,
-                id: uid
-            });
+            })
+            toast("Successfull", {
+                description: "Success creating an account!",
+            })
+            setError("")
         } catch (error) {
-
-            console.error(error);
+            console.error('Login failed:', error)
+            setError(error.message)
         }
     };
 
@@ -149,6 +95,7 @@ function LoginAdmin() {
             [e.target.name]: e.target.value,
         });
     }
+
     return (
         <Tabs defaultValue="account" className="w-[400px]">
             <TabsList className="grid w-full grid-cols-2">

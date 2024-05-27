@@ -20,43 +20,43 @@ import QRCode from 'qrcode.react';
 import { v4 as uuidv4 } from 'uuid';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from 'firebase/auth';
+import axios from 'axios';
+import { toast } from 'sonner';
 
-function UserForm() {
+function UserForm({ token, id }) {
     const qrCodeRef = useRef(null);
-    const [url, setUrl] = useState("");
-
     const [userForm, setUserForm] = useState({
         name: '',
         email: '',
         password: '',
-        salary_date: '',
+        salary_date: null,
         department: '',
         position: '',
         qrcode: "",
+        employee_id: "",
         phone_number: '',
+        salary: 0,
     });
-    const [admin, setAdmin] = useState(null)
+    const [qrcode, setQrcode] = useState("")
     const [date, setDate] = useState(null);
 
     useEffect(() => {
-        const unsubscribe = auth.onAuthStateChanged((user) => {
-            if (user) {
-                console.log(user)
-                const adminCollection = collection(db, 'admin');
-                const q = query(adminCollection, where("email", "==", user.email));
+        if (!id) return
 
-                getDocs(q)
-                    .then((querySnapshot) => {
-                        if (!querySnapshot.empty) {
-                            setAdmin(querySnapshot.docs[0].data());
-                        }
-                    })
-                    .catch((error) => {
-                        console.error("Error fetching admin data: ", error);
-                    });
+        const fetchData = async () => {
+            try {
+                const response = await axios.get(`http://localhost:8080/api/employees/${id}`, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                setUserForm({ ...userForm, ...response.data.data[0] });
+                console.log(response.data);
+            } catch (error) {
+                console.error(error);
             }
-        });
-        return unsubscribe;
+        };
+        fetchData()
     }, [])
 
     useEffect(() => {
@@ -65,7 +65,11 @@ function UserForm() {
             const newDate = new Date(date.getTime());
             newDate.setDate(newDate.getDate() + 1);
             const dateOnly = newDate.toISOString().slice(0, 10);
-            setUserForm({ ...userForm, salary_date: dateOnly, employee_id: uuidv4() })
+            setUserForm(prevState => ({
+                ...prevState,
+                salary_date: dateOnly,
+                employee_id: id ? prevState.employee_id : uuidv4()
+            }))
         }
     }, [date])
 
@@ -78,23 +82,44 @@ function UserForm() {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
         try {
-            await downloadQRCode();
+            // Wait for the QR code to be downloaded
+            const image = await downloadQRCode();
+
+            setUserForm({ ...userForm, qrcode: image })
+            // Now check the form fields
             for (let key of Object.keys(userForm)) {
+                if (key === 'qrcode' || key === 'avatar') continue;
                 if (!userForm[key]) {
                     alert(`Please fill in the ${key} field.`);
                     return;
                 }
             }
-            fetch('http://localhost:8080/api/create_employee', {
-                method: 'POST',
+
+            // Proceed with the rest of the function
+            const url = id ? `http://localhost:8080/api/employees/${id}` : 'http://localhost:8080/api/create_employee';
+            const method = id ? 'put' : 'post';
+
+            await axios[method](url, {
+                name: userForm.name,
+                email: userForm.email,
+                salary_date: userForm.salary_date,
+                department: userForm.department,
+                position: userForm.position,
+                qrcode: userForm.qrcode,
+                phone_number: userForm.phone_number,
+                password: userForm.password,
+                salary: userForm.salary
+            }, {
                 headers: {
-                    'Content-Type': 'application/json',
+                    Authorization: `Bearer ${token}`,
                 },
-                body: JSON.stringify(userForm),
             })
-                .then((response) => response.json())
-                .then(async (data) => {
+                .then(() => {
+                    toast("Successfull", {
+                        description: "Employee added succesfully !",
+                    })
                     setUserForm({
                         name: '',
                         email: '',
@@ -104,54 +129,58 @@ function UserForm() {
                         position: '',
                         qrcode: '',
                         phone_number: '',
+                        employee_id: "",
+                        salary: 0
                     });
-                    await createUserWithEmailAndPassword(auth, userForm.email, userForm.password);
-                    await signOut(auth);
-                    await signInWithEmailAndPassword(auth, admin.email, admin.password)
                 })
-                .catch((error) => {
-                    console.error('Error:', error);
+                .catch(error => {
+                    console.error(error);
                 });
         } catch (err) {
             console.error('Error:', err);
         }
     };
 
-
     const downloadQRCode = async () => {
+        if (qrcode) return;
         if (qrCodeRef.current) {
             const canvas = qrCodeRef.current.querySelector("canvas");
             if (canvas) {
-                canvas.toBlob(async (blob) => {
-                    let downloadLink = document.createElement("a");
-                    downloadLink.href = URL.createObjectURL(blob);
-                    downloadLink.download = `${userForm.name}.png`;
-                    document.body.appendChild(downloadLink);
-                    const downloadURL = await uploadFile(blob);
-                    console.log(downloadURL); // Log the download URL
-                    setUserForm({ ...userForm, qrcode: downloadURL });
-                    // downloadLink.click();
-                    document.body.removeChild(downloadLink);
-                }, 'image/png');
+                return new Promise((resolve, reject) => {
+                    canvas.toBlob(async (blob) => {
+                        let downloadLink = document.createElement("a");
+                        downloadLink.href = URL.createObjectURL(blob);
+                        downloadLink.download = `${userForm.name}.png`;
+                        document.body.appendChild(downloadLink);
+                        try {
+                            const image = await uploadFile(blob);
+                            setQrcode(image);
+                            console.log(image);
+                            document.body.removeChild(downloadLink);
+                            resolve(image);
+                        } catch (error) {
+                            reject(error);
+                        }
+                    }, 'image/png');
+                });
             }
         }
     };
-
 
     const uploadFile = async (file) => {
         const storageRef = ref(storage, `qrCode/${userForm.name}.png`);
         const uploadTaskSnapshot = await uploadBytesResumable(storageRef, file);
         const downloadURL = await getDownloadURL(uploadTaskSnapshot.ref);
+        setQrcode(downloadURL);
         return downloadURL;
     };
 
+
+
     return (
-        <div className="mx-auto grid w-[350px] gap-6">
-            <div className="grid gap-2 text-center">
-                <h1 className="text-3xl font-bold">Create User</h1>
-            </div>
-            <form className='flex flex-col gap-3' onSubmit={handleSubmit}>
-                <div className="grid gap-2">
+        <form className='flex flex-col gap-3' onSubmit={handleSubmit}>
+            <div className="grid gap-4">
+                <div className="grid items-center grid-cols-1 gap-2">
                     <Label htmlFor="name">Name</Label>
                     <Input
                         id="name"
@@ -160,7 +189,8 @@ function UserForm() {
                         value={userForm.name} onChange={handleChange}
                         placeholder="Enter name"
                         required
-                    />
+                    /></div>
+                <div className="grid items-center grid-cols-1 gap-2">
                     <Label htmlFor="email">Email</Label>
                     <Input
                         id="email"
@@ -169,7 +199,8 @@ function UserForm() {
                         value={userForm.email} onChange={handleChange}
                         placeholder="Enter email"
                         required
-                    />
+                    /></div>
+                <div className="grid items-center grid-cols-1 gap-2">
                     <Label htmlFor="password">Password</Label>
                     <Input
                         id="password"
@@ -178,7 +209,19 @@ function UserForm() {
                         value={userForm.password} onChange={handleChange}
                         placeholder="Enter password"
                         required
-                    />
+
+                    /></div>
+                <div className="grid items-center grid-cols-1 gap-2">
+                    <Label htmlFor="salary">Salary</Label>
+                    <Input
+                        id="salary"
+                        type="number"
+                        name="salary"
+                        value={userForm.salary} onChange={handleChange}
+                        placeholder="Enter salary"
+                        required
+                    /></div>
+                <div className="grid items-center grid-cols-1 gap-2">
                     <Label htmlFor="date">Date</Label>
                     <Popover>
                         <PopoverTrigger asChild>
@@ -205,7 +248,8 @@ function UserForm() {
                                 initialFocus
                             />
                         </PopoverContent>
-                    </Popover>
+                    </Popover></div>
+                <div className="grid items-center grid-cols-1 gap-2">
                     <Label htmlFor="department">Department</Label>
                     <Input
                         id="department"
@@ -214,7 +258,8 @@ function UserForm() {
                         value={userForm.department} onChange={handleChange}
                         placeholder="Enter department"
                         required
-                    />
+                    /></div>
+                <div className="grid items-center grid-cols-1 gap-2">
                     <Label htmlFor="position">Position</Label>
                     <Input
                         id="position"
@@ -223,7 +268,8 @@ function UserForm() {
                         value={userForm.position} onChange={handleChange}
                         placeholder="Enter position"
                         required
-                    />
+                    /></div>
+                <div className="grid items-center grid-cols-1 gap-2">
                     <Label htmlFor="phone_number">Phone Number</Label>
                     <Input
                         id="phone_number"
@@ -233,17 +279,17 @@ function UserForm() {
                         placeholder="Enter phone number"
                         required
                     />
-                    <Button type="submit" className="w-full">
-                        Submit
-                    </Button>
                 </div>
-                {userForm.name && (
-                    <div className="hidden" ref={qrCodeRef}>
-                        <QRCode size={200} level="M" value={userForm.name} />
-                    </div>
-                )}
-            </form>
-        </div>
+                <Button type="submit" className="w-full">
+                    Submit
+                </Button>
+            </div>
+            {userForm.name && (
+                <div className="hidden" ref={qrCodeRef}>
+                    <QRCode size={200} level="M" value={userForm.name} />
+                </div>
+            )}
+        </form>
     );
 }
 

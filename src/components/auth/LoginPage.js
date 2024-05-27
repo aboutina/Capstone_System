@@ -10,10 +10,14 @@ import { useState, useEffect } from "react"
 import UserForm from "../form/UserForm"
 import { Badge } from "../ui/badge"
 import { v4 as uuidv4 } from 'uuid';
+import axios from 'axios';
+import useAuth from "@/hooks/useAuth"
+import { toast } from "sonner"
 
 export default function LoginPage() {
   const [result, setResult] = useState(null)
   const [user, setUser] = useState(null)
+  const { token } = useAuth()
 
   useEffect(() => {
     const readerElement = document.getElementById('reader');
@@ -45,29 +49,43 @@ export default function LoginPage() {
   },)
 
   useEffect(() => {
-    try {
-      fetch(`http://localhost:8080/api/employee/${result}`)
-        .then(response => response.json())
-        .then(data => {
-          setUser(data.data[0]);
-        })
-        .catch((error) => {
-          console.error('Error:', error);
+    const fetchData = async () => {
+      try {
+        const response = await axios.get(`http://localhost:8080/api/employee/${result}`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
         });
-    } catch (e) {
-      console.error(e)
-    }
-  }, [result])
+        if (response.data.data.length > 0) {
+          setUser(response.data.data[0]);
+        } else {
+          toast("Error", {
+            description: "User Not Found",
+          })
+        }
+
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchData();
+  }, [result]);
 
 
   useEffect(() => {
-    if (!user) return
-    attendance()
+    if (!user || !user.employee_id) return;
+    attendance(user.employee_id);
   }, [user]);
 
   const attendance = (id) => {
+    console.log("id", id)
     try {
-      fetch(`http://localhost:8080/api/attendance/${user.employee_id}`)
+      fetch(`http://localhost:8080/api/attendance/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
         .then(response => response.json())
         .then(data => {
           console.log(data)
@@ -76,8 +94,9 @@ export default function LoginPage() {
               method: 'POST',
               headers: {
                 'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
               },
-              body: JSON.stringify({ employee_id: user.employee_id, attendance_id: uuidv4() }),
+              body: JSON.stringify({ employee_id: id, attendance_id: uuidv4() }),
             })
               .then(response => response.json())
               .then(data => console.log(data))
@@ -85,8 +104,14 @@ export default function LoginPage() {
                 console.error('Error:', error);
               });
           } else {
+            console.log("data", data.data[0].time_in)
             fetch(`http://localhost:8080/api/time_out/${data.data[0].attendance_id}`, {
               method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${token}`,
+              },
+              body: JSON.stringify({ time_in: data.data[0].time_in }),
             })
               .then(response => response.json())
               .then(data => console.log(data))
@@ -122,11 +147,11 @@ export default function LoginPage() {
   }, [user, result]);
 
   return (
-    <div className="w-full min-h-screen lg:grid lg:grid-cols-2 ">
-      <div className="flex items-center justify-center py-12">
+    <div className="w-full min-h-screen lg:grid lg:grid-cols-1 ">
+      {/* <div className="flex items-center justify-center py-12">
 
         <UserForm />
-      </div>
+      </div> */}
       <div className="items-center justify-center hidden bg-muted lg:flex">
         {user ?
           <div>
