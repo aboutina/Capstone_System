@@ -3,6 +3,10 @@ import useAnalytics from '@/hooks/useAnalytics';
 import axios from 'axios';
 import { CalendarClock, CirclePlus, Cloud, Moon, Sun, Timer, TimerOff, TrendingDown, TrendingUp, Users } from 'lucide-react'
 import React, { useEffect } from 'react'
+import { Line, Bar } from 'react-chartjs-2';
+import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Tooltip, BarElement } from 'chart.js';
+
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Tooltip, BarElement);
 
 function Dashboard() {
   const { earlyBirds, lates, earlyDepartures, absents, off, employee, yearly, monthly } = useAnalytics()
@@ -10,11 +14,95 @@ function Dashboard() {
   const formattedTime = time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
   const date = time.toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' });
 
-  console.log(earlyBirds)
+  function formatDate(dateString) {
+    const options = { year: "numeric", month: "long", day: "numeric" };
+    return new Date(dateString).toLocaleDateString(undefined, options);
+  }
+
+  console.log(yearly)
+
+  const data = {
+    labels: monthly && monthly.map((item) => item.day),
+    datasets: [
+      {
+        label: 'My First dataset',
+        fill: false,
+        lineTension: 0.1,
+        backgroundColor: 'rgba(75,192,192,0.4)',
+        borderColor: 'rgba(75,192,192,1)',
+        borderCapStyle: 'butt',
+        borderDash: [],
+        borderDashOffset: 0.0,
+        borderJoinStyle: 'miter',
+        pointBorderColor: 'rgba(75,192,192,1)',
+        pointBackgroundColor: '#fff',
+        pointBorderWidth: 1,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+        pointHoverBorderColor: 'rgba(220,220,220,1)',
+        pointHoverBorderWidth: 2,
+        pointRadius: 1,
+        pointHitRadius: 10,
+        data: monthly && monthly.map((item) => item.attendance_count)
+      }
+    ]
+  };
+
+  const options = {
+    plugins: {
+      tooltip: {
+        enabled: true,
+        callbacks: {
+          title: function (context) {
+            return 'Title: ' + context[0].label;
+          },
+          label: function (context) {
+            return 'Value: ' + context.parsed.y;
+          }
+        }
+      }
+    },
+    scales: {
+      yAxes: [
+        {
+          ticks: {
+            beginAtZero: true,
+          },
+        },
+      ],
+    },
+  };
+
+  const dataYearly = {
+    labels: yearly && yearly.map((item) => item.month),
+    datasets: [
+      {
+        label: 'My First dataset',
+        fill: false,
+        lineTension: 0.1,
+        backgroundColor: 'rgba(75,192,192,0.4)',
+        borderColor: 'rgba(75,192,192,1)',
+        borderCapStyle: 'butt',
+        borderDash: [],
+        borderDashOffset: 0.0,
+        borderJoinStyle: 'miter',
+        pointBorderColor: 'rgba(75,192,192,1)',
+        pointBackgroundColor: '#fff',
+        pointBorderWidth: 1,
+        pointHoverRadius: 5,
+        pointHoverBackgroundColor: 'rgba(75,192,192,1)',
+        pointHoverBorderColor: 'rgba(220,220,220,1)',
+        pointHoverBorderWidth: 2,
+        pointRadius: 1,
+        pointHitRadius: 10,
+        data: yearly && yearly.map((item) => item.attendance_count)
+      }
+    ]
+  };
   return (
-    <div className="w-full h-full">
-      <div className="flex gap-7">
-        <div className='flex flex-col justify-between border-2 rounded-md max-w-[290px] h-[300px] p-5'>
+    <div className="w-full h-full overflow-hidden">
+      <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+        <div className='flex flex-col justify-between border-2 rounded-md w-full md:max-w-[290px] h-[300px] p-5'>
           <div className="flex items-center justify-between">
             <Sun className="w-20 h-20" />
             <div>
@@ -28,7 +116,7 @@ function Dashboard() {
           </div>
         </div>
         <div className="flex flex-col gap-7">
-          <div className="border-2 flex flex-col justify-between rounded-md w-[320px] h-[130px] p-5">
+          <div className="border-2 flex flex-col justify-between rounded-md w-full md:w-[clamp(250px,100%,320px)] h-[130px] p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold">{employee?.total}</h2>
               <div className="p-1 border-2 rounded-full border-slate-200">
@@ -43,7 +131,7 @@ function Dashboard() {
               </div>
             </div>
           </div>
-          <div className="border-2 flex flex-col justify-between rounded-md w-[320px] h-[130px] p-5">
+          <div className="border-2 flex flex-col justify-between rounded-md w-full md:w-[clamp(250px,100%,320px)] h-[130px] p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold">
                 {lates && lates.today}
@@ -63,7 +151,7 @@ function Dashboard() {
           </div>
         </div>
         <div className="flex flex-col gap-7">
-          <div className="border-2 flex flex-col justify-between rounded-md w-[320px] h-[130px] p-5">
+          <div className="border-2 flex flex-col justify-between rounded-md w-full md:w-[clamp(250px,100%,320px)] h-[130px] p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold">{earlyBirds && earlyBirds.today}</h2>
               <div className="p-1 border-2 rounded-full border-slate-200">
@@ -79,7 +167,7 @@ function Dashboard() {
               </div>
             </div>
           </div>
-          <div className="border-2 flex flex-col justify-between rounded-md w-[320px] h-[130px] p-5">
+          <div className="border-2 flex flex-col justify-between rounded-md w-full md:w-[clamp(250px,100%,320px)] h-[130px] p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold">{earlyDepartures && earlyDepartures.today}</h2>
               <div className="p-1 border-2 rounded-full border-slate-200">
@@ -96,7 +184,7 @@ function Dashboard() {
           </div>
         </div>
         <div className="flex flex-col gap-7">
-          <div className="border-2 flex flex-col justify-between rounded-md w-[320px] h-[130px] p-5">
+          <div className="border-2 flex flex-col justify-between rounded-md w-full md:w-[clamp(250px,100%,320px)] h-[130px] p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold">{absents && absents.today}</h2>
               <div className="p-1 border-2 rounded-full border-slate-200">
@@ -112,21 +200,34 @@ function Dashboard() {
               </div>
             </div>
           </div>
-          <div className="border-2 flex flex-col justify-between rounded-md w-[320px] h-[130px] p-5">
+          <div className="border-2 flex flex-col justify-between rounded-md w-full md:w-[clamp(250px,100%,320px)] h-[130px] p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold">{off?.length}</h2>
               <div className="p-1 border-2 rounded-full border-slate-200">
                 <CalendarClock className="w-6 h-6 " />
               </div>
-
             </div>
             <div className="flex flex-col gap-2">
               <h2 className="font-semibold text-md">Day Off</h2>
-
             </div>
           </div>
         </div>
-
+      </div>
+      <div className="grid w-full grid-cols-1 gap-5 lg:grid-cols-2">
+        <div className="p-5 mt-5 border-2 rounded-md md:w-full w-[clamp(250px,100%,500px)] ">
+          <p className="mb-3 text-sm font-semibold text-slate-400" style={{ letterSpacing: '1px' }}>Attendance Comparison Chart</p>
+          <Line
+            data={data}
+            options={options}
+          />
+        </div>
+        <div className="p-5 mt-5 border-2 rounded-md md:w-full w-[clamp(250px,100%,500px)]">
+          <p className="mb-3 text-sm font-semibold text-slate-400" style={{ letterSpacing: '1px' }}>Yearly Attendance</p>
+          <Bar
+            options={options}
+            data={dataYearly}
+          />
+        </div>
       </div>
     </div>
   )

@@ -36,7 +36,9 @@ function LoginAdmin() {
 
     const login = async () => {
         if (!userForm.email || !userForm.password) {
-            setError('Email and password are required');
+            toast("Error", {
+                description: 'Email and password are required',
+            })
             return;
         }
 
@@ -51,31 +53,41 @@ function LoginAdmin() {
             setError("")
         } catch (error) {
             console.error('Login failed:', error.message)
-            setError(error.message)
+            toast("Error", {
+                description: error.response.data.message,
+            })
         }
     }
 
     const loginEmployee = async (e) => {
         e.preventDefault();
+        if (!userForm.email || !userForm.password) {
+            toast("Error", {
+                description: 'Email and password are required',
+            })
+            return;
+        }
         try {
             const response = await axios.post('http://localhost:8080/api/auth/login', {
                 email: userForm.email,
                 password: userForm.password,
             })
             localStorage.setItem('token', response.data.token)
-            localStorage.setItem('admin', JSON.stringify(response.data.user))
+            localStorage.setItem('user', JSON.stringify(response.data.user))
             router.push('/dashboard')
             setError("")
         } catch (error) {
-            console.error('Login failed:', error.response.data.message)
-            setError(error.response.data.message)
+            toast("Error", {
+                description: error.response.data.message,
+            })
+
         }
     }
 
     const register = async (e) => {
         e.preventDefault();
         try {
-            const response = await axios.post('http://localhost:8080/api/auth/admin/register', {
+            const response = await axios.post('http://localhost:8080/api/auth/register', {
                 email: userForm.email,
                 password: userForm.password,
             })

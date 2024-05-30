@@ -84,17 +84,20 @@ import { useRouter } from "next/navigation"
 import Dashboard from './../../components/tabs/Dashboard';
 import Employee from "@/components/tabs/Employee"
 import Attendance from "@/components/tabs/Attendance"
-import Analytic from "@/components/tabs/Analytic"
+import Profile from "@/components/tabs/Profile"
 import Payroll from "@/components/tabs/Payroll"
 
 export default function Page() {
-    const [tab, setTab] = useState("dashboard")
     const { auth, user } = useAuth();
+    const [tab, setTab] = useState(user?.status === 'admin' ? "dashboard" : "profile");
     const router = useRouter();
 
     useEffect(() => {
         console.log(auth, user)
-    }, [tab])
+        // if (user.status === "user") {
+        //     router.push('/profile')
+        // }
+    }, [])
 
     if (!auth) return <div>Loading...</div>;
 
@@ -120,10 +123,10 @@ export default function Page() {
             return <Employee />
         } else if (tab === 'attendance') {
             return <Attendance />
-        } else if (tab === 'analytics') {
-            return <Analytic />
         } else if (tab === 'payroll') {
             return <Payroll />
+        } else if (tab === 'profile') {
+            return <Profile />
         }
     }
 
@@ -201,23 +204,6 @@ export default function Page() {
                                 </TooltipTrigger>
                                 <TooltipContent side="right">Payroll</TooltipContent>
                             </Tooltip>
-                        </TooltipProvider>
-
-                        <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Link
-                                        href="#"
-                                        onClick={() => setTab("analytics")}
-                                        className={`${tab === "analytics" ? "bg-accent" : ""
-                                            } flex items-center justify-center transition-colors rounded-lg h-9 w-9 text-muted-foreground hover:text-foreground md:h-8 md:w-8`}
-                                    >
-                                        <LineChart className="w-5 h-5" />
-                                        <span className="sr-only">Analytics</span>
-                                    </Link>
-                                </TooltipTrigger>
-                                <TooltipContent side="right">Analytics</TooltipContent>
-                            </Tooltip>
                         </TooltipProvider></> :
                         <>
                             <TooltipProvider>
@@ -291,14 +277,6 @@ export default function Page() {
                                     <Coins className="w-5 h-5" />
                                     Payroll
                                 </Link>
-                                <Link
-                                    href="#"
-                                    onClick={() => setTab("employee")}
-                                    className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-                                >
-                                    <Users2 className="w-5 h-5" />
-                                    Analytics
-                                </Link>
 
                             </nav> :
                                 <nav className="grid gap-6 text-lg font-medium">
@@ -308,7 +286,7 @@ export default function Page() {
                                         className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
                                     >
                                         <User className="w-5 h-5" />
-                                       Profile
+                                        Profile
                                     </Link>
                                 </nav>}
                         </SheetContent>
@@ -331,7 +309,7 @@ export default function Page() {
                         </BreadcrumbList>
                     </Breadcrumb>
 
-                   {user.status === 'admin' &&  <DropdownMenu>
+                    {user.status === 'admin' && <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                             <Button
                                 variant="outline"

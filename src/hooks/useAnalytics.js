@@ -15,6 +15,8 @@ function useAnalytics() {
     const [yearly, setYearly] = useState(null)
 
     useEffect(() => {
+        if (!token) return
+        
         const fetchEarlyBirds = async () => {
             const response = await axios.get('http://localhost:8080/api/early_employees', {
                 headers: {
@@ -99,7 +101,7 @@ function useAnalytics() {
     }, []);
 
 
-    return { earlyBirds, lates, earlyDepartures, absents, off, employee, monthly  ,yearly }
+    return { earlyBirds, lates, earlyDepartures, absents, off, employee, monthly, yearly }
 }
 
 export default useAnalytics

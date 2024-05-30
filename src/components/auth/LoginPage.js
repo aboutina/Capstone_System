@@ -50,6 +50,7 @@ export default function LoginPage() {
 
   useEffect(() => {
     const fetchData = async () => {
+      if(result === null) return
       try {
         const response = await axios.get(`http://localhost:8080/api/employee/${result}`, {
           headers: {
@@ -147,12 +148,12 @@ export default function LoginPage() {
   }, [user, result]);
 
   return (
-    <div className="w-full min-h-screen lg:grid lg:grid-cols-1 ">
+    <div className="grid w-full min-h-screen grid-cols-1 ">
       {/* <div className="flex items-center justify-center py-12">
 
         <UserForm />
       </div> */}
-      <div className="items-center justify-center hidden bg-muted lg:flex">
+      <div className="flex items-center justify-center bg-muted/50">
         {user ?
           <div>
             <Image width={300} height={300} src={user.qrcode} alt={user.name} />
