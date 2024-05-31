@@ -151,7 +151,7 @@ function LoginAdmin() {
                         </div>
                     </CardContent>
                     <CardFooter>
-                        <Button onClick={registerAdmin}>Login</Button>
+                        <Button onClick={login}>Login</Button>
                     </CardFooter>
                 </Card>
             </TabsContent>
@@ -174,7 +174,7 @@ function LoginAdmin() {
                         </div>
                     </CardContent>
                     <CardFooter>
-                        <Button onClick={register}>Login</Button>
+                        <Button onClick={loginEmployee}>Login</Button>
                     </CardFooter>
                 </Card>
             </TabsContent>
