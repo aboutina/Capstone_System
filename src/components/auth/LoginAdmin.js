@@ -101,6 +101,24 @@ function LoginAdmin() {
         }
     };
 
+    const registerAdmin = async (e) => {
+        e.preventDefault();
+        try {
+            const response = await axios.post('http://localhost:8080/api/auth/admin/register', {
+                email: userForm.email,
+                password: userForm.password,
+            })
+            toast("Successfull", {
+                description: "Success creating an account!",
+            })
+            setError("")
+        } catch (error) {
+            console.error('Login failed:', error)
+            setError(error.message)
+        }
+    };
+
+
     const handleChange = (e) => {
         setUserForm({
             ...userForm,
@@ -133,7 +151,7 @@ function LoginAdmin() {
                         </div>
                     </CardContent>
                     <CardFooter>
-                        <Button onClick={login}>Login</Button>
+                        <Button onClick={registerAdmin}>Login</Button>
                     </CardFooter>
                 </Card>
             </TabsContent>
@@ -156,7 +174,7 @@ function LoginAdmin() {
                         </div>
                     </CardContent>
                     <CardFooter>
-                        <Button onClick={loginEmployee}>Login</Button>
+                        <Button onClick={register}>Login</Button>
                     </CardFooter>
                 </Card>
             </TabsContent>
