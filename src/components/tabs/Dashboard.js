@@ -195,7 +195,7 @@ function Dashboard() {
             <div className="flex flex-col gap-2">
               <h2 className="font-semibold text-md">Absents</h2>
               <div className="flex items-center gap-2">
-                {absents && absents.difference <= 0 ? <TrendingUp className={`w-4 h-4 text-green-500`} /> : <TrendingDown className={`w-4 h-4 text-red-500`} />}
+                {absents && absents.difference <= 0 ? <TrendingUp className={`w-4 h-4 text-red-500`} /> : <TrendingDown className={`w-4 h-4 text-green-500`} />}
                 {absents && absents.difference >= 0 ? <p className="text-xs text-red-500">+{absents.difference} Increase than yesterday!</p> : <p className="text-xs text-green-500">{absents && absents.difference} Decrease than yesterday!</p>}
               </div>
             </div>

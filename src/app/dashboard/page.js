@@ -89,19 +89,18 @@ import Payroll from "@/components/tabs/Payroll"
 
 export default function Page() {
     const { auth, user } = useAuth();
-    const [tab, setTab] = useState(user?.status === 'admin' ? "dashboard" : "profile");
+    const [tab, setTab] = useState("dashboard");
     const router = useRouter();
 
     useEffect(() => {
         console.log(auth, user)
-        // if (user.status === "user") {
-        //     router.push('/profile')
-        // }
-    }, [])
+        if (user && user.status === "user") {
+            setTab("profile")
+        }
+    }, [user])
 
     if (!auth) return <div>Loading...</div>;
 
-    const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
     // useEffect(() => {
     //     const date = new Date();
@@ -113,6 +112,7 @@ export default function Page() {
     function logout() {
         // Remove the token from localStorage
         localStorage.removeItem('token');
+        localStorage.removeItem('admmin');
         router.push("/")
     }
 

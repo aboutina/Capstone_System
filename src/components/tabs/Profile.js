@@ -27,6 +27,7 @@ import { CalendarIcon } from "lucide-react"
 import { format } from "date-fns"
 import { toast } from "sonner"
 import QRCode from "qrcode.react"
+import { useRouter } from "next/navigation"
 
 function Profile() {
     const qrCodeRef = useRef(null);
@@ -48,6 +49,7 @@ function Profile() {
     const [image, setImage] = useState(null)
     const [date, setDate] = useState(null)
     const [qrCode, setQrcode] = useState(null)
+    const router = useRouter()
 
     useEffect(() => {
         if (!token) return
@@ -205,6 +207,14 @@ function Profile() {
         }
     };
 
+    function logout() {
+        // Remove the token from localStorage
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        router.push("/")
+    }
+
+
     return (
         <div className="grid items-start max-w-[1000px] m-auto flex-1 gap-4 p-4 sm:px-6 sm:py-0 md:gap-8">
             <div className="flex items-center justify-between">
@@ -348,6 +358,7 @@ function Profile() {
                     </Card>
                 </div>
             </div>
+            <Button variant="ghost" onClick={logout} className="text-xs font-medium text-red-400">Log out</Button>
         </div>
     )
 }

@@ -1,7 +1,7 @@
 'use client'
 import axios from 'axios';
 import React, { useState, useEffect } from 'react'
-import { ArrowUpDown, ChevronDown, MoreHorizontal, User } from "lucide-react";
+import { ArrowUpDown, ChevronDown, MoreHorizontal, User, FileDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -20,6 +20,7 @@ import Image from 'next/image';
 import EditEmployee from '../modal/EditEmployee';
 import useEmployee from '@/hooks/useEmployee';
 import useAuth from '@/hooks/useAuth';
+import * as XLSX from 'xlsx';
 
 function Employee() {
     const [data, setData] = useState([])
@@ -77,6 +78,13 @@ function Employee() {
         }
     }
 
+    const handleExcelDownload = (data) => {
+        const ws = XLSX.utils.json_to_sheet(data);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Sheet1");
+        XLSX.writeFile(wb, "csv.xlsx");
+    };
+
     return (
         <div className="w-full">
             <div className="flex items-center justify-between py-4">
@@ -85,7 +93,14 @@ function Employee() {
                     onChange={(event) => setFilter(event.target.value)}
                     className="max-w-sm"
                 />
-                <AddEmployee />
+                <div className="flex gap-3">
+                    <Button onClick={() => handleExcelDownload(filterData)} variant="outline" size="sm" className="gap-1 h-7">
+                        <FileDown className="h-3.5 w-3.5" />
+                        Export
+                    </Button>
+                    <AddEmployee />
+                </div>
+
             </div>
             <div className="border rounded-md">
                 {filterData && filterData.length ? <Table>

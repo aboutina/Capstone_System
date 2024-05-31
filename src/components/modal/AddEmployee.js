@@ -13,6 +13,7 @@ import axios from "axios"
 import React, { useEffect, useState } from 'react'
 import { toast } from "sonner"
 import UserForm from "../form/UserForm"
+import { CirclePlus } from 'lucide-react'
 
 function AddEmployee() {
 
@@ -26,7 +27,7 @@ function AddEmployee() {
     return (
         <Dialog>
             <DialogTrigger asChild>
-                <Button variant="outline">Add Employee</Button>
+                <Button size="sm" className="gap-1 h-7"> <CirclePlus className="h-3.5 w-3.5" /> Add Employee</Button>
             </DialogTrigger>
             <DialogContent className="h-[400px] sm:h-auto overflow-auto sm:max-w-[505px]">
                 <DialogHeader>

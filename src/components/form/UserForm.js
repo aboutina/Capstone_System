@@ -110,7 +110,8 @@ function UserForm({ token, id }) {
                 qrcode: userForm.qrcode,
                 phone_number: userForm.phone_number,
                 password: userForm.password,
-                salary: userForm.salary
+                salary: userForm.salary,
+                employee_id: userForm.employee_id
             }, {
                 headers: {
                     Authorization: `Bearer ${token}`,
