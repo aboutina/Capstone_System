@@ -91,10 +91,17 @@ function LoginAdmin() {
                 email: userForm.email,
                 password: userForm.password,
             })
-            toast("Successfull", {
-                description: "Success creating an account!",
-            })
-            setError("")
+                .then(() => {
+                    toast("Successfull", {
+                        description: "Success creating an account!",
+                    })
+                    setError("")
+                })
+                .catch(error => {
+                    toast("Error", {
+                        description: error.response.data.errors[0].msg,
+                    })
+                });
         } catch (error) {
             console.error('Login failed:', error)
             setError(error.message)
@@ -108,13 +115,22 @@ function LoginAdmin() {
                 email: userForm.email,
                 password: userForm.password,
             })
-            toast("Successfull", {
-                description: "Success creating an account!",
-            })
-            setError("")
+                .then(() => {
+                    toast("Successfull", {
+                        description: "Success creating an account!",
+                    })
+                    setError("")
+                })
+                .catch(error => {
+                    toast("Error", {
+                        description: error.response.data.errors[0].msg,
+                    })
+                });
         } catch (error) {
             console.error('Login failed:', error)
-            setError(error.message)
+            toast("Error", {
+                description: error.response.data.errors[0].msg,
+            })
         }
     };
 

@@ -120,7 +120,7 @@ export default function Page() {
         if (tab === 'dashboard') {
             return <Dashboard />
         } else if (tab === 'employee') {
-            return <Employee />
+            return <Employee setTab={setTab} />
         } else if (tab === 'attendance') {
             return <Attendance />
         } else if (tab === 'payroll') {
@@ -295,7 +295,7 @@ export default function Page() {
                         <BreadcrumbList>
                             <BreadcrumbItem>
                                 <BreadcrumbLink asChild>
-                                    <Link href="#">Dashboard</Link>
+                                    <Link href="#" onClick={() => setTab('dashboard')}>Dashboard</Link>
                                 </BreadcrumbLink>
                             </BreadcrumbItem>
                             {tab !== "dashboard" && <> <BreadcrumbSeparator />

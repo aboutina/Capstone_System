@@ -28,13 +28,12 @@ function UserForm({ token, id }) {
     const [userForm, setUserForm] = useState({
         name: '',
         email: '',
-        password: '',
         salary_date: null,
         department: '',
         position: '',
         qrcode: "",
         employee_id: "",
-        phone_number: '',
+        phone_number: 0,
         salary: 0,
     });
     const [qrcode, setQrcode] = useState("")
@@ -86,11 +85,12 @@ function UserForm({ token, id }) {
         try {
             // Wait for the QR code to be downloaded
             const image = await downloadQRCode();
-
-            setUserForm({ ...userForm, qrcode: image })
+            if (image) {
+                setUserForm({ ...userForm, qrcode: image })
+            }
             // Now check the form fields
             for (let key of Object.keys(userForm)) {
-                if (key === 'qrcode' || key === 'avatar') continue;
+                if (key === 'avatar') continue;
                 if (!userForm[key]) {
                     alert(`Please fill in the ${key} field.`);
                     return;
@@ -109,7 +109,7 @@ function UserForm({ token, id }) {
                 position: userForm.position,
                 qrcode: userForm.qrcode,
                 phone_number: userForm.phone_number,
-                password: userForm.password,
+                password: userForm.phone_number.toString().slice(-4),
                 salary: userForm.salary,
                 employee_id: userForm.employee_id
             }, {
@@ -135,7 +135,9 @@ function UserForm({ token, id }) {
                     });
                 })
                 .catch(error => {
-                    console.error(error);
+                    toast("Error", {
+                        description: error.response.data.errors[0].msg,
+                    })
                 });
         } catch (err) {
             console.error('Error:', err);
@@ -155,10 +157,13 @@ function UserForm({ token, id }) {
                         document.body.appendChild(downloadLink);
                         try {
                             const image = await uploadFile(blob);
-                            setQrcode(image);
-                            console.log(image);
-                            document.body.removeChild(downloadLink);
-                            resolve(image);
+                            if (image) {
+                                setUserData({ ...userData, qrcode: image })
+                                setQrcode(image);
+                                console.log(image);
+                                document.body.removeChild(downloadLink);
+                                resolve(image);
+                            }
                         } catch (error) {
                             reject(error);
                         }
@@ -200,17 +205,6 @@ function UserForm({ token, id }) {
                         value={userForm.email} onChange={handleChange}
                         placeholder="Enter email"
                         required
-                    /></div>
-                <div className="grid items-center grid-cols-1 gap-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                        id="password"
-                        type="password"
-                        name="password"
-                        value={userForm.password} onChange={handleChange}
-                        placeholder="Enter password"
-                        required
-
                     /></div>
                 <div className="grid items-center grid-cols-1 gap-2">
                     <Label htmlFor="salary">Salary</Label>

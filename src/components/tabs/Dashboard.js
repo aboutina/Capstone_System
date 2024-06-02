@@ -19,7 +19,7 @@ function Dashboard() {
     return new Date(dateString).toLocaleDateString(undefined, options);
   }
 
-  console.log(yearly)
+  console.log(employee)
 
   const data = {
     labels: monthly && monthly.map((item) => item.day),
@@ -116,7 +116,7 @@ function Dashboard() {
           </div>
         </div>
         <div className="flex flex-col gap-7">
-          <div className="border-2 flex flex-col justify-between rounded-md w-full md:w-[clamp(250px,100%,320px)] h-[130px] p-5">
+          <div className="border-2 flex flex-col justify-between rounded-md w-full  h-[130px] p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold">{employee?.total}</h2>
               <div className="p-1 border-2 rounded-full border-slate-200">
@@ -131,7 +131,7 @@ function Dashboard() {
               </div>
             </div>
           </div>
-          <div className="border-2 flex flex-col justify-between rounded-md w-full md:w-[clamp(250px,100%,320px)] h-[130px] p-5">
+          <div className="border-2 flex flex-col justify-between rounded-md w-full  h-[130px] p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold">
                 {lates && lates.today}
@@ -151,7 +151,7 @@ function Dashboard() {
           </div>
         </div>
         <div className="flex flex-col gap-7">
-          <div className="border-2 flex flex-col justify-between rounded-md w-full md:w-[clamp(250px,100%,320px)] h-[130px] p-5">
+          <div className="border-2 flex flex-col justify-between rounded-md w-full  h-[130px] p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold">{earlyBirds && earlyBirds.today}</h2>
               <div className="p-1 border-2 rounded-full border-slate-200">
@@ -167,7 +167,7 @@ function Dashboard() {
               </div>
             </div>
           </div>
-          <div className="border-2 flex flex-col justify-between rounded-md w-full md:w-[clamp(250px,100%,320px)] h-[130px] p-5">
+          <div className="border-2 flex flex-col justify-between rounded-md w-full  h-[130px] p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold">{earlyDepartures && earlyDepartures.today}</h2>
               <div className="p-1 border-2 rounded-full border-slate-200">
@@ -177,14 +177,14 @@ function Dashboard() {
             <div className="flex flex-col gap-2">
               <h2 className="font-semibold text-md">Early Departures</h2>
               <div className="flex items-center gap-2">
-                {earlyDepartures && earlyDepartures.difference >= 0 ? <TrendingUp className={`w-4 h-4 ${earlyDepartures && earlyDepartures.difference >= 0 ? 'text-green-500' : 'text-red-500'}`} /> : <TrendingDown className={`w-4 h-4 ${earlyDepartures && earlyDepartures.difference >= 0 ? 'text-green-500' : 'text-red-500'}`} />}
+                {earlyDepartures && earlyDepartures.difference >= 0 ? <TrendingDown className={`w-4 h-4 text-green-500`} /> : <TrendingUp className={`w-4 h-4 text-red-500`} />}
                 {earlyDepartures && earlyDepartures.difference >= 0 ? <p className="text-xs text-green-500">+{earlyDepartures.difference} Decrease than yesterday!</p> : <p className="text-xs text-red-500">{earlyDepartures && earlyDepartures.difference} Increase than yesterday!</p>}
               </div>
             </div>
           </div>
         </div>
         <div className="flex flex-col gap-7">
-          <div className="border-2 flex flex-col justify-between rounded-md w-full md:w-[clamp(250px,100%,320px)] h-[130px] p-5">
+          <div className="border-2 flex flex-col justify-between rounded-md w-full  h-[130px] p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold">{absents && absents.today}</h2>
               <div className="p-1 border-2 rounded-full border-slate-200">
@@ -195,12 +195,12 @@ function Dashboard() {
             <div className="flex flex-col gap-2">
               <h2 className="font-semibold text-md">Absents</h2>
               <div className="flex items-center gap-2">
-                {absents && absents.difference <= 0 ? <TrendingUp className={`w-4 h-4 text-red-500`} /> : <TrendingDown className={`w-4 h-4 text-green-500`} />}
+                {absents && absents.difference >= 0 ? <TrendingUp className={`w-4 h-4 text-red-500`} /> : <TrendingDown className={`w-4 h-4 text-green-500`} />}
                 {absents && absents.difference >= 0 ? <p className="text-xs text-red-500">+{absents.difference} Increase than yesterday!</p> : <p className="text-xs text-green-500">{absents && absents.difference} Decrease than yesterday!</p>}
               </div>
             </div>
           </div>
-          <div className="border-2 flex flex-col justify-between rounded-md w-full md:w-[clamp(250px,100%,320px)] h-[130px] p-5">
+          <div className="border-2 flex flex-col justify-between rounded-md w-full  h-[130px] p-5">
             <div className="flex items-center justify-between">
               <h2 className="text-2xl font-semibold">{off?.length}</h2>
               <div className="p-1 border-2 rounded-full border-slate-200">

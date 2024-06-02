@@ -28,6 +28,7 @@ import { format } from "date-fns"
 import { toast } from "sonner"
 import QRCode from "qrcode.react"
 import { useRouter } from "next/navigation"
+import { useStore } from '@/hooks/useStore';
 
 function Profile() {
     const qrCodeRef = useRef(null);
@@ -50,11 +51,12 @@ function Profile() {
     const [date, setDate] = useState(null)
     const [qrCode, setQrcode] = useState(null)
     const router = useRouter()
+    const userEmail = useStore(state => state.userEmail)
 
     useEffect(() => {
         if (!token) return
         const fetchUser = async () => {
-            if (user && user.email) {
+            if (user && user.email && user.status === 'user') {
                 const response = await axios.get(`http://localhost:8080/api/employee/${user.email}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -65,10 +67,24 @@ function Profile() {
                     setOriginalData(response.data.data[0])
                     console.log(response.data);
                 }
+            } else {
+                if (userEmail) {
+                    const response = await axios.get(`http://localhost:8080/api/employee/${userEmail}`, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                        },
+                    });
+                    if (response.data.data.length > 0) {
+                        setUserData(response.data.data[0])
+                        setOriginalData(response.data.data[0])
+                        console.log(response.data);
+                    }
+                }
+
             }
         }
         fetchUser();
-    }, [user]);
+    }, [user, userEmail]);
 
     const handleImageChange = (e) => {
         if (e.target.files && e.target.files[0]) {
@@ -358,7 +374,7 @@ function Profile() {
                     </Card>
                 </div>
             </div>
-            <Button variant="ghost" onClick={logout} className="text-xs font-medium text-red-400">Log out</Button>
+            {user?.status === 'user' && <Button variant="ghost" onClick={logout} className="text-xs font-medium text-red-400">Log out</Button>}
         </div>
     )
 }

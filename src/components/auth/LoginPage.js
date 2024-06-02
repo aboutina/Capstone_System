@@ -48,28 +48,29 @@ export default function LoginPage() {
     }
   },)
 
+
   useEffect(() => {
     const fetchData = async () => {
-      if(result === null) return
+      if (result === null) return
       try {
-        const response = await axios.get(`http://localhost:8080/api/employee/${result}`, {
+        console.log(result)
+        const response = await axios.get(`http://localhost:8080/api/employees/${encodeURIComponent(result)}`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
         if (response.data.data.length > 0) {
           setUser(response.data.data[0]);
-        } else {
-          toast("Error", {
-            description: "User Not Found",
-          })
-        }
-
+        } 
       } catch (error) {
         console.error(error);
+         setUser(null);
+        setResult(null);
+        toast("Error", {
+            description: "User Not Found",
+          })
       }
     };
-
     fetchData();
   }, [result]);
 
@@ -80,7 +81,6 @@ export default function LoginPage() {
   }, [user]);
 
   const attendance = (id) => {
-    console.log("id", id)
     try {
       fetch(`http://localhost:8080/api/attendance/${id}`, {
         headers: {
