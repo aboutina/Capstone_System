@@ -18,6 +18,7 @@ import useAuth from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import { useRouter } from 'next/navigation';
+import generate from '../pdf_template/generatePDF';
 
 function Attendance() {
     const [data, setData] = useState([])
@@ -77,6 +78,12 @@ function Attendance() {
         }
     }
 
+    const handleGenerate = async () => {
+        const link = await generate();
+        console.log(link);
+        window.open(link, '_blank');
+    }
+
     return (
         <div className="w-full">
             <div className="flex items-center justify-between py-4">
@@ -85,7 +92,11 @@ function Attendance() {
                     onChange={(event) => setFilter(event.target.value)}
                     className="max-w-sm"
                 />
-                <Button variant="outline" onClick={() => router.push('scan')} className="flex items-center gap-2">Scan QR</Button>
+                <div className="flex gap-2">
+                    <Button variant="outline" onClick={handleGenerate} className="flex items-center gap-2">Generate</Button>
+                    <Button variant="outline" onClick={() => router.push('scan')} className="flex items-center gap-2">Scan QR</Button>
+                </div>
+
             </div>
             <div className="border rounded-md">
                 {filterData && filterData.length ? <Table>
@@ -111,7 +122,7 @@ function Attendance() {
                                     </TableCell>
                                     <TableCell className="capitalize whitespace-nowrap">{formatDate(item.date)}</TableCell>
                                     <TableCell className="capitalize whitespace-nowrap">{item.time_in}</TableCell>
-                                    <TableCell className="capitalize whitespace-nowrap">PHP {item.time_out}</TableCell>
+                                    <TableCell className="capitalize whitespace-nowrap">{item.time_out}</TableCell>
                                     <TableCell className="max-w-[30px]"> <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" className="w-8 h-8 p-0">

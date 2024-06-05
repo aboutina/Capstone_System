@@ -102,7 +102,7 @@ function Dashboard() {
   return (
     <div className="w-full h-full overflow-hidden">
       <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
-        <div className='flex flex-col justify-between border-2 rounded-md w-full md:max-w-[290px] h-[300px] p-5'>
+        <div className='flex flex-col justify-between border-2 rounded-md w-full  h-[300px] p-5'>
           <div className="flex items-center justify-between">
             <Sun className="w-20 h-20" />
             <div>
@@ -118,7 +118,7 @@ function Dashboard() {
         <div className="flex flex-col gap-7">
           <div className="border-2 flex flex-col justify-between rounded-md w-full  h-[130px] p-5">
             <div className="flex items-center justify-between">
-              <h2 className="text-2xl font-semibold">{employee?.total}</h2>
+              <h2 className="text-2xl font-semibold">{employee?.this_month}</h2>
               <div className="p-1 border-2 rounded-full border-slate-200">
                 <Users className="w-6 h-6" />
               </div>
