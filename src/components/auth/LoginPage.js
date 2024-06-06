@@ -46,7 +46,7 @@ export default function LoginPage() {
         // console.warn(err)
       }
     }
-  },)
+  }, [])
 
 
   useEffect(() => {
@@ -61,14 +61,14 @@ export default function LoginPage() {
         });
         if (response.data.data.length > 0) {
           setUser(response.data.data[0]);
-        } 
+        }
       } catch (error) {
         console.error(error);
-         setUser(null);
+        setUser(null);
         setResult(null);
         toast("Error", {
-            description: "User Not Found",
-          })
+          description: "User Not Found",
+        })
       }
     };
     fetchData();
@@ -168,7 +168,7 @@ export default function LoginPage() {
               setResult(null)
             }}>Reset</Button>
           </div> :
-          <div id="reader" className="w-full h-full border-0"></div>
+          <div id="reader" className="w-[300px] h-[300px] border-0"></div>
         }
       </div>
     </div>

@@ -4,9 +4,9 @@ import useAuth from '@/hooks/useAuth';
 import React from 'react'
 
 function Page() {
-    const { auth, user } = useAuth();
+    // const { auth, user } = useAuth();
 
-    if (!auth) return <div>Loading...</div>;
+    // if (!auth) return <div>Loading...</div>;
     return (
         <LoginPage />
     )
