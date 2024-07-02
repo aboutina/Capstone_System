@@ -52,6 +52,7 @@ function Profile() {
     const [qrCode, setQrcode] = useState(null)
     const router = useRouter()
     const userEmail = useStore(state => state.userEmail)
+    console.log(userEmail)
 
     useEffect(() => {
         if (!token) return
@@ -227,6 +228,7 @@ function Profile() {
         // Remove the token from localStorage
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        localStorage.removeItem('admin');
         router.push("/")
     }
 

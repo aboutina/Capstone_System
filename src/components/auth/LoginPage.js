@@ -25,8 +25,8 @@ export default function LoginPage() {
     if (readerElement && readerElement.offsetWidth > 0 && readerElement.offsetHeight > 0) {
       const scanner = new Html5QrcodeScanner('reader', {
         qrbox: {
-          width: 250,
-          height: 250
+          width: 300,
+          height: 300
         },
         fps: 5,
       })
@@ -168,7 +168,7 @@ export default function LoginPage() {
               setResult(null)
             }}>Reset</Button>
           </div> :
-          <div id="reader" className="w-full h-full border-0"></div>
+          <div id="reader" className="w-full max-h-[40vh] h-full border-0"></div>
         }
       </div>
     </div>

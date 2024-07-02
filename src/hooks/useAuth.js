@@ -24,7 +24,7 @@ const useAuth = () => {
             localStorageAdmin = JSON.parse(localStorage.getItem('admin'));
 
             // Set user if exists in localStorage, otherwise set admin
-            setUser(localStorageUser ? { ...localStorageUser, status: 'user' } : { ...localStorageAdmin, status: 'admin' });
+            setUser(localStorageAdmin ? { ...localStorageAdmin, status: 'admin' } : { ...localStorageUser, status: 'user' });
 
             if (!token) {
                 router.push('/');
